@@ -4,6 +4,10 @@ import customtkinter as ctk
 from PIL import Image, ImageTk
 import qrcode
 import os
+try:
+	from ctypes import  byref, sizeof, c_int
+except:
+	pass
 
 
 os.system('clear')
@@ -13,6 +17,7 @@ class App(ctk.CTk):
 		# Window Setup
 		ctk.set_appearance_mode('light')
 		super().__init__(fg_color='white')
+		self.title_bar_color()
 		# Customization
 		self.title('')
 		self.iconbitmap('images/empty.ico')
@@ -48,11 +53,23 @@ class App(ctk.CTk):
 
 	def save(self, event=''):
 		if self.raw_image:
-			file_path = filedialog.asksaveasfilename(filetypes=[('Jpeg', '*.jpg')])
-			print(file_path + '-------------')	
-			if file_path:
-				self.raw_image.save(file_path + '.jpg')
+			file_path = filedialog.asksaveasfilename(
+				filetypes=[('JPEG file', '.jpg'),
+				('PNG file', '.png')],
+				defaultextension='.jpg')
+		if file_path:
+			self.raw_image.save(file_path)
 
+	def title_bar_color(self):
+		try:
+			HWND = windll.user32.GetParent(self.winfo_id())
+			windll.dwmapi.DwmSetWindowAttribute(
+				HWND,
+				35,
+				byref(c_int(0x00FFFFFF)),
+				sizeof(c_int))
+		except:
+			pass
 
 class EntryField(ctk.CTkFrame):
 	def __init__(self, parent, entry_string, save_func):
